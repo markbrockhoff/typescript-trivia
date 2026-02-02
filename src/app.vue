@@ -14,18 +14,7 @@ import QuestionCard from './components/QuestionCard.vue';
       <OnyxHeadline is="h1">Typescript Trivia</OnyxHeadline>
     </div>
 
-    <QuestionCard
-      class="question-card"
-      :question="{
-        question: 'Whats 2+2?',
-        answers: [
-          { text: '2', correct: false },
-          { text: '4', correct: true },
-          { text: '42', correct: false },
-          { text: '-3', correct: false },
-        ],
-      }"
-    />
+    <QuestionCard />
   </div>
 </template>
 

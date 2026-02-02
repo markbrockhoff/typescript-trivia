@@ -1,27 +1,37 @@
 <script lang="ts" setup>
-import { OnyxButton, OnyxCard, OnyxHeadline } from 'sit-onyx';
+import {
+  OnyxButton,
+  OnyxCard,
+  OnyxHeadline,
+  OnyxLoadingIndicator,
+} from 'sit-onyx';
 import { ref } from 'vue';
+import { useQuestionProvider } from '../composables/useQuestionProvider';
 
-type Question = {
-  question: string;
-  answers: { text: string; correct: boolean }[];
-};
-
-const props = defineProps<{ question: Question }>();
-
-const emit = defineEmits<{ nextQuestionClick: [] }>();
+const { currentQuestion, isLoading, error, fetchNextQuestion } =
+  useQuestionProvider({
+    next: async () => ({
+      question: 'Whats 2+2?',
+      answers: [
+        { text: '2', correct: false },
+        { text: '4', correct: true },
+        { text: '42', correct: false },
+        { text: '-3', correct: false },
+      ],
+    }),
+  });
 
 const showSolution = ref(false);
 const submitAnswer = () => (showSolution.value = true);
-const requestNextQuestion = () => {
+const requestNextQuestion = async () => {
   showSolution.value = false;
-  emit('nextQuestionClick');
+  await fetchNextQuestion();
 };
 </script>
 
 <template>
-  <OnyxCard class="card">
-    <OnyxHeadline is="h2">{{ props.question.question }}</OnyxHeadline>
+  <OnyxCard v-if="currentQuestion && !isLoading" class="card">
+    <OnyxHeadline is="h2">{{ currentQuestion.question }}</OnyxHeadline>
 
     <div class="answers">
       <OnyxButton
@@ -30,7 +40,7 @@ const requestNextQuestion = () => {
           'answer--correct': answer.correct,
           'answer--incorrect': !answer.correct,
         }"
-        v-for="answer in props.question.answers"
+        v-for="answer in currentQuestion.answers"
         :key="answer.text"
         :label="answer.text"
         :mode="showSolution ? 'default' : 'outline'"
@@ -46,6 +56,15 @@ const requestNextQuestion = () => {
       @click="requestNextQuestion"
     />
   </OnyxCard>
+
+  <OnyxCard v-else-if="isLoading" class="card card--loading">
+    <OnyxLoadingIndicator type="circle" />
+  </OnyxCard>
+
+  <OnyxCard v-else class="card card--error">
+    {{ error }}
+    <OnyxButton label="Try again" @click="requestNextQuestion" />
+  </OnyxCard>
 </template>
 
 <style scoped>
@@ -60,6 +79,12 @@ const requestNextQuestion = () => {
   box-shadow:
     0 0 4px var(--onyx-color-base-primary-500),
     0 0 12px var(--onyx-color-base-primary-500);
+}
+
+.card--loading,
+.card--error {
+  align-items: center;
+  justify-content: center;
 }
 
 .answers {
