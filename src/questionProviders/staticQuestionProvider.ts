@@ -1,4 +1,7 @@
-import type { QuestionProvider } from '../composables/useQuestionProvider';
+import type {
+  Question,
+  QuestionProvider,
+} from '../composables/useQuestionProvider';
 
 /**
  * Task 1: Implement the staticQuestionProvider
@@ -15,8 +18,54 @@ import type { QuestionProvider } from '../composables/useQuestionProvider';
  * Use the function to shuffle the questions answers before returning it in the `next()` function.
  */
 
+const questions: Question[] = [
+  {
+    question:
+      'Which of the following is the correct way to specify that a variable count should only accept numbers in TypeScript?',
+    answers: [
+      { text: 'let count: number = 5;', correct: true },
+      { text: 'let count: integer = 5;', correct: false },
+      { text: 'let count = number 5;', correct: false },
+      { text: 'var count := 5;', correct: false },
+    ],
+  },
+  {
+    question:
+      'Which of the following is correct syntax for declaring an array of strings?',
+    answers: [
+      { text: 'let names: string[];', correct: true },
+      { text: 'let names: Array<string>;', correct: true },
+      { text: 'let names: [string];', correct: false },
+      { text: 'let names: <string>;', correct: false },
+    ],
+  },
+  {
+    question:
+      'If you have a function that performs an action but does not return any value, which return type should you use?',
+    answers: [
+      { text: 'void', correct: true },
+      { text: 'null', correct: false },
+      { text: 'empty', correct: false },
+      { text: 'undefined', correct: false },
+    ],
+  },
+];
+
 export const staticQuestionProvider: QuestionProvider = {
   next: () => {
-    throw new Error('Static question provider is not implemented');
+    const randomIndex = Math.floor(Math.random() * questions.length);
+
+    const randomQuestion = questions[randomIndex];
+    shuffleAnswers(randomQuestion.answers);
+
+    return randomQuestion;
   },
+};
+
+const shuffleAnswers = (answers: Question['answers']) => {
+  for (let i = answers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [answers[i], answers[j]] = [answers[j], answers[i]];
+  }
+  return answers;
 };
