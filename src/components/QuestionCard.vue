@@ -7,19 +7,10 @@ import {
 } from 'sit-onyx';
 import { ref } from 'vue';
 import { useQuestionProvider } from '../composables/useQuestionProvider';
+import { staticQuestionProvider } from '../questionProviders/staticQuestionProvider';
 
 const { currentQuestion, isLoading, error, fetchNextQuestion } =
-  useQuestionProvider({
-    next: async () => ({
-      question: 'Whats 2+2?',
-      answers: [
-        { text: '2', correct: false },
-        { text: '4', correct: true },
-        { text: '42', correct: false },
-        { text: '-3', correct: false },
-      ],
-    }),
-  });
+  useQuestionProvider(staticQuestionProvider);
 
 const showSolution = ref(false);
 const submitAnswer = () => (showSolution.value = true);
