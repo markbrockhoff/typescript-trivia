@@ -1,4 +1,5 @@
 import type { QuestionProvider } from '../composables/useQuestionProvider';
+import { shuffleArray } from '../util/shuffleArray';
 
 /**
  * Task 2: Fetch questions dynamically from an API
@@ -25,8 +26,36 @@ import type { QuestionProvider } from '../composables/useQuestionProvider';
  *    - To sleep / wait 5s in JS create a new promise which resolves after 5s e.g.: `await new Promise((resolve) => setTimeout(resolve, 5_000))`
  */
 
+type ApiResponse = {
+  results: {
+    question: string;
+    correct_answer: string;
+    incorrect_answers: string[];
+  }[];
+};
+
+const fetchQuestion = async () => {
+  const res = await fetch(
+    'https://opentdb.com/api.php?amount=1&encode=url3986',
+  );
+  const data: ApiResponse = await res.json();
+
+  const question = data.results[0];
+  const answers = [question.correct_answer, ...question.incorrect_answers].map(
+    (answer, i) => ({
+      text: decodeURIComponent(answer),
+      correct: i === 0,
+    }),
+  );
+
+  return {
+    question: decodeURIComponent(question.question),
+    answers: shuffleArray(answers),
+  };
+};
+
 export const dynamicQuestionProvider: QuestionProvider = {
   next: async () => {
-    throw new Error('Dynamic question provider is not implemented!');
+    return await fetchQuestion();
   },
 };
