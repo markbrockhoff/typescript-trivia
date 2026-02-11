@@ -2,6 +2,7 @@ import type {
   Question,
   QuestionProvider,
 } from '../composables/useQuestionProvider';
+import { shuffleArray } from '../util/shuffleArray';
 
 /**
  * Task 1: Implement the staticQuestionProvider
@@ -56,16 +57,8 @@ export const staticQuestionProvider: QuestionProvider = {
     const randomIndex = Math.floor(Math.random() * questions.length);
 
     const randomQuestion = questions[randomIndex];
-    shuffleAnswers(randomQuestion.answers);
+    shuffleArray(randomQuestion.answers);
 
     return randomQuestion;
   },
-};
-
-const shuffleAnswers = (answers: Question['answers']) => {
-  for (let i = answers.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [answers[i], answers[j]] = [answers[j], answers[i]];
-  }
-  return answers;
 };

@@ -7,10 +7,10 @@ import {
 } from 'sit-onyx';
 import { ref } from 'vue';
 import { useQuestionProvider } from '../composables/useQuestionProvider';
-import { staticQuestionProvider } from '../questionProviders/staticQuestionProvider';
+import { dynamicQuestionProvider } from '../questionProviders/dynamicQuestionProvider';
 
 const { currentQuestion, isLoading, error, fetchNextQuestion } =
-  useQuestionProvider(staticQuestionProvider);
+  useQuestionProvider(dynamicQuestionProvider);
 
 const showSolution = ref(false);
 const submitAnswer = () => (showSolution.value = true);
