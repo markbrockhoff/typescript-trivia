@@ -33,6 +33,16 @@ type ApiResponse = {
     incorrect_answers: string[];
   }[];
 };
+
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public isRetryable = false,
+  ) {
+    super(message);
+  }
+}
+
 const isApiResponse = (data: unknown): data is ApiResponse => {
   if (
     !data ||
@@ -64,10 +74,17 @@ const fetchQuestion = async () => {
   );
   const data: unknown = await res.json();
 
+  if (!res.ok) {
+    if (res.status === 429) throw new ApiError('API rate limit exceeded', true);
+    throw new ApiError(`API request failed with status ${res.status}`);
+  }
+
   if (!isApiResponse(data))
-    throw new Error(`Invalid API response: ${JSON.stringify(data)}`);
+    throw new ApiError(`Invalid API response: ${JSON.stringify(data)}`);
 
   const question = data.results[0];
+  if (question === undefined) throw new ApiError('No question found');
+
   const answers = [question.correct_answer, ...question.incorrect_answers].map(
     (answer, i) => ({
       text: decodeURIComponent(answer),
@@ -83,6 +100,21 @@ const fetchQuestion = async () => {
 
 export const dynamicQuestionProvider: QuestionProvider = {
   next: async () => {
-    return await fetchQuestion();
+    let retries = 2;
+
+    while (retries >= 0) {
+      try {
+        return await fetchQuestion();
+      } catch (e) {
+        if (e instanceof ApiError && e.isRetryable) {
+          retries--;
+          await new Promise((resolve) => setTimeout(resolve, 5_000));
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    throw new ApiError('Failed to fetch a question after multiple retries');
   },
 };
