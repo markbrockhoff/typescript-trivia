@@ -33,12 +33,39 @@ type ApiResponse = {
     incorrect_answers: string[];
   }[];
 };
+const isApiResponse = (data: unknown): data is ApiResponse => {
+  if (
+    !data ||
+    typeof data !== 'object' ||
+    !('results' in data) ||
+    !Array.isArray(data.results)
+  ) {
+    return false;
+  }
+
+  return data.results.every(
+    (result) =>
+      !!result &&
+      typeof result === 'object' &&
+      'question' in result &&
+      typeof result.question === 'string' &&
+      'correct_answer' in result &&
+      typeof result.correct_answer === 'string' &&
+      Array.isArray(result.incorrect_answers) &&
+      result.incorrect_answers.every(
+        (answer: unknown) => typeof answer === 'string',
+      ),
+  );
+};
 
 const fetchQuestion = async () => {
   const res = await fetch(
     'https://opentdb.com/api.php?amount=1&encode=url3986',
   );
-  const data: ApiResponse = await res.json();
+  const data: unknown = await res.json();
+
+  if (!isApiResponse(data))
+    throw new Error(`Invalid API response: ${JSON.stringify(data)}`);
 
   const question = data.results[0];
   const answers = [question.correct_answer, ...question.incorrect_answers].map(
