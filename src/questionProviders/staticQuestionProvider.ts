@@ -3,8 +3,15 @@ import type { QuestionProvider } from '../composables/useQuestionProvider';
 /**
  * Task 1: Implement the staticQuestionProvider
  *
- * 1. Define an array of type `Question` (you can import the type from "../composables/useQuestionProvider")
- * 2. Add 1-3 example questions and answers to the array (no need to be fancy, if can't think of good questions just use math, e.g.: "Whats 2 + 2?")
+ * 1. Define an array of type `Question` (you can import the type from "../composables/useQuestionProvider" just like `QuestionProvider`)
+ *    the Question type is defined like this:
+ *    ```ts
+ *    type Question = {
+ *      question: string;
+ *      answers: { text: string; correct: boolean }[];
+ *    };
+ *    ```
+ * 2. Add 1-3 example questions and answers to the array (no need to be fancy, if you can't think of good questions just use math, e.g.: "Whats 2 + 2?")
  * 3. Return a random question from the array within the providers `next()` function
  *    - You can use `Math.random()` to get a random number between 0 and 1 (the Math package is global no need to import it)
  *    - `Math.floor()` can be used to cut of the fractions of a number e.g. `Math.floor(3.14) === 3`
